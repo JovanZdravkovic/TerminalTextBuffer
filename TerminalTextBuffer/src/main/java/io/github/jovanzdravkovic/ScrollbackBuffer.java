@@ -1,8 +1,10 @@
 package io.github.jovanzdravkovic;
 
 import io.github.jovanzdravkovic.models.Cell;
+import io.github.jovanzdravkovic.models.Style;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 public class ScrollbackBuffer {
     private int terminalHeight;
@@ -74,6 +76,17 @@ public class ScrollbackBuffer {
             return ' ';
         } else {
             return buffer[row * terminalWidth + column].getInformation();
+        }
+    }
+
+    public EnumSet<Style> stylesAtPosition(int row, int column) {
+        if(row < 0 || row >= maximumScrollbackLines || column < 0 || column >= terminalWidth) {
+            return null;
+        }
+        if(buffer[row * terminalWidth + column] == null) {
+            return null;
+        } else {
+            return buffer[row * terminalWidth + column].getStyles();
         }
     }
 

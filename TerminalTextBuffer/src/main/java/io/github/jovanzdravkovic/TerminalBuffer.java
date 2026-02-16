@@ -1,8 +1,10 @@
 package io.github.jovanzdravkovic;
 
 import io.github.jovanzdravkovic.models.Cell;
+import io.github.jovanzdravkovic.models.Style;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 public class TerminalBuffer {
 
@@ -11,6 +13,7 @@ public class TerminalBuffer {
     private int maximumScrollbackLines;
     private byte foregroundColor;
     private byte backgroundColor;
+    private EnumSet<Style> styles;
     private int totalScreenSize;
     private int filledCellCount;
     private Cell[] screen;
@@ -18,7 +21,7 @@ public class TerminalBuffer {
     private Cursor cursor;
     private ScrollbackBuffer scrollbackBuffer;
 
-    public TerminalBuffer(int terminalWidth, int terminalHeight, int maximumScrollbackLines, byte foregroundColor, byte backgroundColor) {
+    public TerminalBuffer(int terminalWidth, int terminalHeight, int maximumScrollbackLines, byte foregroundColor, byte backgroundColor, EnumSet<Style> styles) {
         this.terminalWidth = terminalWidth;
         this.terminalHeight = terminalHeight;
         this.totalScreenSize = this.terminalHeight * this.terminalWidth;
@@ -26,10 +29,23 @@ public class TerminalBuffer {
         this.maximumScrollbackLines = maximumScrollbackLines;
         this.foregroundColor = foregroundColor;
         this.backgroundColor = backgroundColor;
+        this.styles = styles;
         this.screen = new Cell[this.totalScreenSize];
         this.overflowRow = new Cell[this.terminalWidth];
         this.cursor = new Cursor(this.terminalHeight, this.terminalWidth);
         this.scrollbackBuffer = new ScrollbackBuffer(maximumScrollbackLines, terminalHeight, terminalWidth);
+    }
+
+    public void setForegroundColor(byte foregroundColor) {
+        this.foregroundColor = foregroundColor;
+    }
+
+    public void setBackgroundColor(byte backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public void setStyles(EnumSet<Style> styles) {
+        this.styles = styles;
     }
 
     public void setCursorPosition(int row, int column) {
@@ -83,7 +99,7 @@ public class TerminalBuffer {
         }
         int index = 0;
         while(index < text.length()) {
-            screen[cursor.getPosition()] = new Cell(text.charAt(index), foregroundColor, backgroundColor, (byte)0);
+            screen[cursor.getPosition()] = new Cell(text.charAt(index), foregroundColor, backgroundColor, styles);
             filledCellCount++;
             if(index < text.length() - 1 && cursor.isLastCell()) {
                 scrollback();
@@ -136,7 +152,7 @@ public class TerminalBuffer {
             int batchSize = Math.min(text.length() - index, terminalWidth);
             boolean overflowOccured = shiftCellsToRight(cursor.getPosition(), batchSize);
             for(int i = 0; i < batchSize; i++) {
-                screen[cursor.getPosition()] = new Cell(text.charAt(index), foregroundColor, backgroundColor, (byte)0);
+                screen[cursor.getPosition()] = new Cell(text.charAt(index), foregroundColor, backgroundColor, styles);
                 cursor.moveRight(1);
                 filledCellCount++;
                 index++;
@@ -154,7 +170,7 @@ public class TerminalBuffer {
             if(screen[index] == null) {
                 filledCellCount++;
             }
-            screen[index] = new Cell(c, foregroundColor, backgroundColor, (byte)0);
+            screen[index] = new Cell(c, foregroundColor, backgroundColor, styles);
         }
     }
 
@@ -187,6 +203,21 @@ public class TerminalBuffer {
 
     public char charAtPositionScrollback(int row, int column) {
         return this.scrollbackBuffer.charAtPosition(row, column);
+    }
+
+    public EnumSet<Style> stylesAtPositionScreen(int row, int column) {
+        if(row < 0 || row >= terminalHeight || column < 0 || column >= terminalWidth) {
+            return null;
+        }
+        if(screen[row * terminalWidth + column] == null) {
+            return null;
+        } else {
+            return screen[row * terminalWidth + column].getStyles();
+        }
+    }
+
+    public EnumSet<Style> stylesAtPositionScrollback(int row, int column) {
+        return this.scrollbackBuffer.stylesAtPosition(row, column);
     }
 
     public String getLineScreen(int row) {

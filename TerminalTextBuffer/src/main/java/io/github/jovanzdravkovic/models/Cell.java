@@ -1,16 +1,18 @@
 package io.github.jovanzdravkovic.models;
 
+import java.util.EnumSet;
+
 public class Cell {
     private char information;
     private byte foregroundColor;
     private byte backgroundColor;
-    private byte styleFlag;
+    private EnumSet<Style> styles;
 
-    public Cell(char information, byte foregroundColor, byte backgroundColor, byte styleFlag) {
+    public Cell(char information, byte foregroundColor, byte backgroundColor, EnumSet<Style> styles) {
         this.information = information;
         this.foregroundColor = foregroundColor;
         this.backgroundColor = backgroundColor;
-        this.styleFlag = styleFlag;
+        this.styles = styles;
     }
 
     public char getInformation() {
@@ -25,7 +27,7 @@ public class Cell {
         return this.backgroundColor;
     }
 
-    public byte getStyleFlag() {
-        return this.styleFlag;
+    public EnumSet<Style> getStyles() {
+        return this.styles;
     }
 }
