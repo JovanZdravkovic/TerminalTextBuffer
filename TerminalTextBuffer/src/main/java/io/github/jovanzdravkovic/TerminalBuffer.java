@@ -1,5 +1,7 @@
 package io.github.jovanzdravkovic;
 
+import io.github.jovanzdravkovic.models.Cell;
+
 import java.util.Arrays;
 
 public class TerminalBuffer {
@@ -172,11 +174,67 @@ public class TerminalBuffer {
         scrollbackBuffer.clear();
     }
 
+    public char charAtPositionScreen(int row, int column) {
+        if(row < 0 || row >= terminalHeight || column < 0 || column >= terminalWidth) {
+            return ' ';
+        }
+        if(screen[row * terminalWidth + column] == null) {
+            return ' ';
+        } else {
+            return screen[row * terminalWidth + column].getInformation();
+        }
+    }
+
+    public char charAtPositionScrollback(int row, int column) {
+        return this.scrollbackBuffer.charAtPosition(row, column);
+    }
+
+    public String getLineScreen(int row) {
+        if(row < 0 || row >= terminalHeight) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        int lineStart = row * terminalWidth;
+        int lineEnd = row * terminalWidth + terminalWidth - 1;
+        for(int i = lineStart; i <= lineEnd; i++) {
+            if(screen[i] != null) {
+                sb.append(screen[i].getInformation());
+            } else {
+                sb.append(' ');
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getLineScrollback(int row) {
+        return this.scrollbackBuffer.getLine(row);
+    }
+
+    public String getScreenContent() {
+        return this.toString();
+    }
+
+    public String getScreenAndScrollbackContent() {
+        return this.toString() + this.scrollbackBuffer.toString();
+    }
+
     public void resizeTerminal(int terminalHeight, int terminalWidth) {
         this.terminalHeight = terminalHeight;
         this.terminalWidth = terminalWidth;
         scrollbackBuffer.resizeTerminal(this.terminalHeight, this.terminalWidth);
         cursor.resizeTerminal(terminalHeight, terminalWidth);
         // TODO: implement screen resizing logic here
+    }
+
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int i = 0; i < totalScreenSize; i++) {
+            if(screen[i] != null) {
+                stringBuilder.append(screen[i].getInformation());
+            } else {
+                stringBuilder.append(' ');
+            }
+        }
+        return stringBuilder.toString();
     }
 }

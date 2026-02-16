@@ -1,4 +1,4 @@
-package io.github.jovanzdravkovic;
+package io.github.jovanzdravkovic.models;
 
 public class Cell {
     private char information;

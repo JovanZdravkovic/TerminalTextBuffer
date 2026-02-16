@@ -1,5 +1,7 @@
 package io.github.jovanzdravkovic;
 
+import io.github.jovanzdravkovic.models.Cell;
+
 import java.util.Arrays;
 
 public class ScrollbackBuffer {
@@ -62,6 +64,34 @@ public class ScrollbackBuffer {
 
     private int increment(int x) {
         return (x + 1) % maximumScrollbackSize;
+    }
+
+    public char charAtPosition(int row, int column) {
+        if(row < 0 || row >= maximumScrollbackLines || column < 0 || column >= terminalWidth) {
+            return ' ';
+        }
+        if(buffer[row * terminalWidth + column] == null) {
+            return ' ';
+        } else {
+            return buffer[row * terminalWidth + column].getInformation();
+        }
+    }
+
+    public String getLine(int row) {
+        if(row < 0 || row >= maximumScrollbackLines) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        int lineStart = row * terminalWidth;
+        int lineEnd = row * terminalWidth + terminalWidth - 1;
+        for(int i = lineStart; i <= lineEnd; i++) {
+            if(buffer[i] != null) {
+                sb.append(buffer[i].getInformation());
+            } else {
+                sb.append(' ');
+            }
+        }
+        return sb.toString();
     }
 
     // There are two approaches to this problem:
