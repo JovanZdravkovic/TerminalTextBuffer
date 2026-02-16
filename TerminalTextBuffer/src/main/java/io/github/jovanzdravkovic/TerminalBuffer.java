@@ -99,9 +99,11 @@ public class TerminalBuffer {
         }
         int index = 0;
         while(index < text.length()) {
+            if(screen[cursor.getPosition()] == null) {
+                filledCellCount++;
+            }
             screen[cursor.getPosition()] = new Cell(text.charAt(index), foregroundColor, backgroundColor, styles);
-            filledCellCount++;
-            if(index < text.length() - 1 && cursor.isLastCell()) {
+            if(cursor.isLastCell()) {
                 scrollback();
                 cursor.moveToTheBeginning();
             } else {
@@ -249,12 +251,35 @@ public class TerminalBuffer {
         return this.toString() + this.scrollbackBuffer.toString();
     }
 
+    private int recomputeCount() {
+        int cnt = 0;
+        for(int i = 0; i < this.totalScreenSize; i++) {
+            if(screen[i] != null) {
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
     public void resizeTerminal(int terminalHeight, int terminalWidth) {
         this.terminalHeight = terminalHeight;
         this.terminalWidth = terminalWidth;
+        this.overflowRow = new Cell[terminalWidth];
         scrollbackBuffer.resizeTerminal(this.terminalHeight, this.terminalWidth);
         cursor.resizeTerminal(terminalHeight, terminalWidth);
-        // TODO: implement screen resizing logic here
+        int newTotalScreenSize = this.terminalHeight * this.terminalWidth;
+        if(this.totalScreenSize > newTotalScreenSize) {
+            this.scrollbackBuffer.writeCells(Arrays.copyOfRange(screen, 0, this.totalScreenSize - newTotalScreenSize));
+            this.screen = Arrays.copyOfRange(screen, this.totalScreenSize - newTotalScreenSize, this.totalScreenSize);
+            this.totalScreenSize = newTotalScreenSize;
+            this.filledCellCount = recomputeCount();
+        } else {
+            Cell[] newArray = new Cell[newTotalScreenSize];
+            System.arraycopy(this.screen, 0, newArray, 0, this.totalScreenSize);
+            this.screen = newArray;
+            this.totalScreenSize = newTotalScreenSize;
+            // There is no need to recompute the cell count since all the cells have been moved to the new screen
+        }
     }
 
     public String toString() {
