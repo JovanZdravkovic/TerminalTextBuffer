@@ -5,14 +5,21 @@ public class Cursor {
     private int terminalWidth;
     private int terminalHeight;
 
-    public Cursor(int position, int terminalWidth, int terminalHeight) {
+    public Cursor(int position, int terminalHeight, int terminalWidth) {
         this.position = position;
-        this.terminalWidth = terminalWidth;
         this.terminalHeight = terminalHeight;
+        this.terminalWidth = terminalWidth;
     }
 
-    public Cursor(int terminalWidth, int terminalHeight) {
-        this(0, terminalWidth, terminalHeight);
+    public Cursor(int terminalHeight, int terminalWidth) {
+        this(0,  terminalHeight, terminalWidth);
+    }
+
+    public void resizeTerminal(int terminalHeight, int terminalWidth) {
+        this.terminalHeight = terminalHeight;
+        this.terminalWidth = terminalWidth;
+        int maximumPossiblePosition = terminalHeight * terminalWidth - 1;
+        this.position = Math.min(this.position, maximumPossiblePosition);
     }
 
     public int getRow() {
@@ -23,50 +30,53 @@ public class Cursor {
         return this.position % terminalWidth;
     }
 
+    private void addToPosition(int steps) {
+        this.position += steps;
+        this.position = Math.max(this.position, 0);
+        this.position = Math.min(this.position, terminalHeight * terminalWidth - 1);
+    }
+
     public void setPosition(int row, int column) {
-        if(row < 0 || row >= terminalHeight || column < 0 || row >= terminalWidth) {
-            throw new IllegalArgumentException("Row or column has invalid value");
+        if(row < 0) {
+            row = 0;
+        }
+        if(row >= terminalHeight) {
+            row = terminalHeight - 1;
+        }
+        if(column < 0) {
+            column = 0;
+        }
+        if(column >= terminalWidth) {
+            column = terminalWidth - 1;
         }
         this.position = row * terminalWidth + column;
     }
 
-    public boolean moveUp(int steps) {
-        try {
-            setPosition(this.getRow() - steps, this.getColumn());
-            return true;
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+    public int getPosition() {
+        return this.position;
     }
 
-    public boolean moveDown(int steps) {
-        try {
-            setPosition(this.getRow() + steps, this.getColumn());
-            return true;
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+    public void moveUp(int steps) {
+        setPosition(this.getRow() - steps, this.getColumn());
     }
 
-    public boolean moveLeft(int steps) {
-        try {
-            setPosition(this.getRow(), this.getColumn() - steps);
-            return true;
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+    public void moveDown(int steps) {
+        setPosition(this.getRow() + steps, this.getColumn());
     }
 
-    public boolean moveRight(int steps) {
-        try {
-            setPosition(this.getRow(), this.getColumn() + steps);
-            return true;
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+    public void moveLeft(int steps) {
+        addToPosition(-steps);
+    }
+
+    public void moveRight(int steps) {
+        addToPosition(steps);
+    }
+
+    public void moveToTheBeginning() {
+        setPosition(this.getRow(), 0);
+    }
+
+    public boolean isLastCell() {
+        return this.position == (terminalHeight * terminalWidth - 1);
     }
 }
