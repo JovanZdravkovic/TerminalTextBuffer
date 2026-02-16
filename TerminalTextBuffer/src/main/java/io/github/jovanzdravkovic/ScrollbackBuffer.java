@@ -68,41 +68,50 @@ public class ScrollbackBuffer {
         return (x + 1) % maximumScrollbackSize;
     }
 
+    private int realIndex(int logicalIndex) {
+        return (startIndex() + logicalIndex) % maximumScrollbackSize;
+    }
+
     public char charAtPosition(int row, int column) {
-        if(row < 0 || row >= maximumScrollbackLines || column < 0 || column >= terminalWidth) {
+        int lineCount = count / terminalWidth;
+        if(row < 0 || row >= lineCount || column < 0 || column >= terminalWidth) {
             return ' ';
         }
-        if(buffer[row * terminalWidth + column] == null) {
+        int index = realIndex(row * terminalWidth + column);
+        if(buffer[index] == null) {
             return ' ';
         } else {
-            return buffer[row * terminalWidth + column].getInformation();
+            return buffer[index].getInformation();
         }
     }
 
     public EnumSet<Style> stylesAtPosition(int row, int column) {
-        if(row < 0 || row >= maximumScrollbackLines || column < 0 || column >= terminalWidth) {
+        int lineCount = count / terminalWidth;
+        if(row < 0 || row >= lineCount || column < 0 || column >= terminalWidth) {
             return null;
         }
-        if(buffer[row * terminalWidth + column] == null) {
+        int index = realIndex(row * terminalWidth + column);
+        if(buffer[index] == null) {
             return null;
         } else {
-            return buffer[row * terminalWidth + column].getStyles();
+            return buffer[index].getStyles();
         }
     }
 
     public String getLine(int row) {
-        if(row < 0 || row >= maximumScrollbackLines) {
+        int lineCount = count / terminalWidth;
+        if(row < 0 || row >= lineCount) {
             return null;
         }
         StringBuilder sb = new StringBuilder();
-        int lineStart = row * terminalWidth;
-        int lineEnd = row * terminalWidth + terminalWidth - 1;
-        for(int i = lineStart; i <= lineEnd; i++) {
-            if(buffer[i] != null) {
-                sb.append(buffer[i].getInformation());
+        int lineIndex = realIndex(row * terminalWidth);
+        for(int i = 0; i < terminalWidth; i++) {
+            if(buffer[lineIndex] != null) {
+                sb.append(buffer[lineIndex].getInformation());
             } else {
                 sb.append(' ');
             }
+            lineIndex = increment(lineIndex);
         }
         return sb.toString();
     }
