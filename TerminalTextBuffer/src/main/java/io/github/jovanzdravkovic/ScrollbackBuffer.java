@@ -1,5 +1,7 @@
 package io.github.jovanzdravkovic;
 
+import java.util.Arrays;
+
 public class ScrollbackBuffer {
     private int terminalHeight;
     private int terminalWidth;
@@ -45,7 +47,7 @@ public class ScrollbackBuffer {
     }
 
     public void clear() {
-        this.buffer = new Cell[maximumScrollbackSize];
+        Arrays.fill(this.buffer, null);
         this.writeIndex = 0;
         this.count = 0;
     }
