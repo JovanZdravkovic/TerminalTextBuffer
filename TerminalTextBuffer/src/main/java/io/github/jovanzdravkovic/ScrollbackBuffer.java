@@ -53,6 +53,18 @@ public class ScrollbackBuffer {
         this.count = 0;
     }
 
+    public int getMaximumScrollbackLines() {
+        return this.maximumScrollbackLines;
+    }
+
+    public int getMaximumScrollbackSize() {
+        return this.maximumScrollbackSize;
+    }
+
+    public int getCount() {
+        return this.count;
+    }
+
     public void setForegroundColor(byte foregroundColor) {
         this.foregroundColor = foregroundColor;
     }
