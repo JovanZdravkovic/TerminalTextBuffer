@@ -25,9 +25,9 @@ public class TerminalBuffer {
     private Cursor cursor; // Cursor object that tracks cursor position
     private ScrollbackBuffer scrollbackBuffer; // Scrollback buffer object
 
-    public TerminalBuffer(int terminalWidth, int terminalHeight, int maximumScrollbackLines, byte foregroundColor, byte backgroundColor, EnumSet<Style> styles) {
-        this.terminalWidth = terminalWidth;
+    public TerminalBuffer(int terminalHeight, int terminalWidth, int maximumScrollbackLines, byte foregroundColor, byte backgroundColor, EnumSet<Style> styles) {
         this.terminalHeight = terminalHeight;
+        this.terminalWidth = terminalWidth;
         this.totalScreenSize = this.terminalHeight * this.terminalWidth;
         this.filledCellCount = 0;
         this.maximumScrollbackLines = maximumScrollbackLines;
@@ -38,6 +38,14 @@ public class TerminalBuffer {
         this.overflowRow = new Cell[this.terminalWidth];
         this.cursor = new Cursor(this.terminalHeight, this.terminalWidth);
         this.scrollbackBuffer = new ScrollbackBuffer(maximumScrollbackLines, terminalHeight, terminalWidth, foregroundColor, backgroundColor, styles);
+    }
+
+    public int getTotalScreenSize() {
+        return this.totalScreenSize;
+    }
+
+    public ScrollbackBuffer getScrollbackBuffer() {
+        return this.scrollbackBuffer;
     }
 
     public void setForegroundColor(byte foregroundColor) {
@@ -64,6 +72,10 @@ public class TerminalBuffer {
     /** Sets the cursor to a specific row and column. */
     public void setCursorPosition(int row, int column) {
         this.cursor.setPosition(row, column);
+    }
+
+    public int getCursorPosition() {
+        return this.cursor.getPosition();
     }
 
     /** Moves the cursor up by the given number of rows. */
@@ -423,8 +435,6 @@ public class TerminalBuffer {
         for(int i = 0; i < totalScreenSize; i++) {
             if(screen[i] != null) {
                 stringBuilder.append(screen[i].getInformation());
-            } else {
-                stringBuilder.append(' ');
             }
         }
         return stringBuilder.toString();
