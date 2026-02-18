@@ -29,6 +29,10 @@ class TerminalBufferTest {
         );
     }
 
+    /**
+     * Verifies that writing text into an empty terminal places the characters
+     * at the beginning of the screen and updates the screen content accordingly.
+     */
     @Test
     void testWriteIntoEmptyBuffer() {
         assertEquals("", terminalBuffer.toString());
@@ -36,6 +40,11 @@ class TerminalBufferTest {
         assertEquals("TEST", terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that writing past the screen capacity causes the top line
+     * to be moved into the scrollback buffer and the new text to appear
+     * at the end of the screen.
+     */
     @Test
     void testWriteOverflowBuffer() {
         assertEquals("", terminalBuffer.toString());
@@ -55,6 +64,10 @@ class TerminalBufferTest {
         assertEquals(resultScreen, terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that inserting text into a partially filled screen shifts
+     * existing cells to the right without causing scrollback.
+     */
     @Test
     void testInsertIntoPartiallyFilledBuffer() {
         assertEquals("", terminalBuffer.toString());
@@ -66,6 +79,10 @@ class TerminalBufferTest {
         assertEquals("TESTTXXXXESTTEST", terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that inserting text into a full screen shifts cells,
+     * causes overflow, and moves the top line into the scrollback buffer.
+     */
     @Test
     void testInsertIntoFullBuffer() {
         assertEquals("", terminalBuffer.toString());
@@ -89,6 +106,11 @@ class TerminalBufferTest {
         assertEquals(expectedResultScreen, terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that inserting text at the beginning of the first line
+     * in a full screen causes the inserted content to overflow into
+     * the scrollback buffer.
+     */
     @Test
     void testInsertIntoFullBufferFirstLine() {
         assertEquals("", terminalBuffer.toString());
@@ -111,6 +133,10 @@ class TerminalBufferTest {
         assertEquals(expectedResultScreen, terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that filling a line replaces all characters in the
+     * current cursor row without affecting other rows.
+     */
     @Test
     void testFillLineFullBuffer() {
         assertEquals("", terminalBuffer.toString());
@@ -131,6 +157,10 @@ class TerminalBufferTest {
         assertEquals(stringToFillBuffer.toString(), terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that inserting an empty line at the bottom of a full screen
+     * moves the top line into the scrollback buffer and shifts the screen up.
+     */
     @Test
     void insertEmptyLineAtBottomFullBuffer() {
         assertEquals("", terminalBuffer.toString());
@@ -150,6 +180,10 @@ class TerminalBufferTest {
         assertEquals(expectedScreen, terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that clearing the screen removes all content and
+     * resets the cursor to the initial position.
+     */
     @Test
     void testClearScreen() {
         assertEquals("", terminalBuffer.toString());
@@ -167,6 +201,10 @@ class TerminalBufferTest {
         assertEquals("", terminalBuffer.toString());
     }
 
+    /**
+     * Verifies that clearing both the screen and scrollback removes
+     * all stored content and resets the cursor.
+     */
     @Test
     void testClearScreenAndScrollback() {
         assertEquals("", terminalBuffer.toString());
@@ -191,6 +229,10 @@ class TerminalBufferTest {
         assertEquals(0, terminalBuffer.getCursorPosition());
     }
 
+    /**
+     * Verifies that characters are correctly returned for valid
+     * positions on the screen.
+     */
     @Test
     void testCharAtValidPositionScreen() {
         assertEquals("", terminalBuffer.toString());
@@ -204,6 +246,10 @@ class TerminalBufferTest {
         assertEquals('E', terminalBuffer.charAtPositionScreen(0, 4));
     }
 
+    /**
+     * Verifies that querying empty screen positions returns a space
+     * character.
+     */
     @Test
     void testCharAtEmptyPositionScreen() {
         assertEquals("", terminalBuffer.toString());
@@ -216,6 +262,10 @@ class TerminalBufferTest {
         assertEquals(' ', terminalBuffer.charAtPositionScreen(3, 1));
     }
 
+    /**
+     * Verifies that style information is correctly returned for
+     * cells that contain characters on the screen.
+     */
     @Test
     void testStylesAtValidPositionScreen() {
         assertEquals("", terminalBuffer.toString());
@@ -229,6 +279,10 @@ class TerminalBufferTest {
         assertEquals(styles, terminalBuffer.stylesAtPositionScreen(0, 4));
     }
 
+    /**
+     * Verifies that querying styles at empty screen positions
+     * returns null.
+     */
     @Test
     void testStylesAtEmptyPositionScreen() {
         assertEquals("", terminalBuffer.toString());
@@ -241,6 +295,10 @@ class TerminalBufferTest {
         assertNull(terminalBuffer.stylesAtPositionScreen(3, 3));
     }
 
+    /**
+     * Verifies that retrieving screen lines returns the correct
+     * content, including partially filled and empty rows.
+     */
     @Test
     void testGetFullLine() {
         assertEquals("", terminalBuffer.toString());
@@ -259,6 +317,10 @@ class TerminalBufferTest {
         assertEquals("     ", terminalBuffer.getLineScreen(3));
     }
 
+    /**
+     * Verifies that the combined content of the screen and scrollback
+     * is returned with the correct value.
+     */
     @Test
     void testGetScreenAndScrollbackContent() {
         assertEquals("", terminalBuffer.toString());
@@ -280,6 +342,10 @@ class TerminalBufferTest {
         assertEquals(resultScreen + resultScrollback, terminalBuffer.getScreenAndScrollbackContent());
     }
 
+    /**
+     * Verifies that resizing the terminal to a larger size preserves
+     * screen content and cursor position while increasing capacity.
+     */
     @Test
     void testResizeTerminalToLargerTerminal() {
         assertEquals("", terminalBuffer.toString());
@@ -299,6 +365,11 @@ class TerminalBufferTest {
         assertEquals(5 * 6, terminalBuffer.getTotalScreenSize());
     }
 
+    /**
+     * Verifies that resizing the terminal to a smaller size moves
+     * overflowed content into the scrollback buffer and clamps
+     * the cursor to a valid position.
+     */
     @Test
     void testResizeTerminalToSmallerTerminal() {
         assertEquals("", terminalBuffer.toString());
